@@ -21,8 +21,9 @@ audioWinning.setAttribute("src", "assets/images/Rouser.mp3");
 var audioLosing = document.createElement("audio");
 audioLosing.setAttribute("src", "assets/images/Price-is-right-losing-horn.mp3");
 
-//flag for is game is over don't register any other mouse clicks...only Restart
-var gameOver = false;
+//flags for is battle in progress or game is over -> don't register any other mouse clicks...only Restart
+var battleInProgeess = false;
+var gameOverOrPaused = false;
 
 //character objects
 var reyPlayer = {
@@ -121,8 +122,8 @@ $(document).ready(function () {
 
     $(".row-2").on("click", ".characters-star-wars-top", function () {
 
-        //don't allow any other clicks to register if game is over
-        if (gameOver == true) {
+        //don't allow any other clicks to register if game is over or battle is in progress
+        if (battleInProgeess == true || gameOverOrPaused == true) {
             return;
         }
 
@@ -197,10 +198,13 @@ $(document).ready(function () {
         //hide text of battle winner
         hideElement(".row-7 #battle-winner-text");
 
-        //don't allow any other clicks to register if game is over
-        if (gameOver == true) {
+        //don't allow any other clicks to register if game is over or battle is in progress
+        if (battleInProgeess == true || gameOverOrPaused == true) {
             return;
         }
+
+        //set flag that battle has begun
+        battleInProgeess = true;
 
         // user selects the Star Wars Character they want to fight against
         // show the selection on row 6, but make the others on row 4 slide left
@@ -240,8 +244,8 @@ $(document).ready(function () {
 
     $(".row-5").on("click", function () {
 
-        //don't allow any other clicks to register if game is over
-        if (gameOver == true) {
+        //don't allow any other clicks to register if game is over or waiting for new character selection
+        if (gameOverOrPaused == true) {
             return;
         }
 
@@ -273,16 +277,28 @@ $(document).ready(function () {
         changeTextInDisplay(".row-6 #" + enemySelected.codeName + " #" + enemySelected.codeName + "-health", enemySelected.healthPoints);
 
 
-        if (enemySelected.healthPoints <= 0) {
+        
+        //if your health points is <= 0 you lose
+        //TODO: still need to handle tie scenario
+        if (characterSelected.healthPoints <= 0) {
+            console.log("you lose");
+            hideElement(".row-7 #bottom-text-area");
+            showElement(".row-7 #loser-text-area");
+            showElement(".row-7 #restart-button");
+            audioLosing.play();
+            gameOverOrPaused = true;
+        }
+        else if (enemySelected.healthPoints <= 0) {
             //increment number of enemies defeated...if this == 3 you win!
             enemiesDefeated++;
             //hide image of defeated enemy
             hideElement(".row-6 #" + enemySelected.codeName);
             //hide stats text box
             hideElement(".row-7 #bottom-text-area");
-            //setup and display that you defeated an enemy and what to do to continue
+            //setup and display that you defeated an enemy and what to do to contnue
             changeTextInDisplay("#battle-winner-text #defender-name", enemySelected.name);
             showElement(".row-7 #battle-winner-text");
+            battleInProgeess = false;
         }
 
         //if enemiesDefeated == 3 you win!
@@ -291,21 +307,14 @@ $(document).ready(function () {
             showElement(".row-7 #restart-button")
             showElement(".row-7 #winner-text-area");
             hideElement("#bottom-text-area");
+            hideElement("#battle-winner-text");
             audioWinning.play();
+            gameOverOrPaused == true;
         }
 
 
-        //if your health points is <= 0 you lose
-        if (characterSelected.healthPoints <= 0) {
-            console.log("you lose");
-            hideElement(".row-7 #bottom-text-area");
-            showElement(".row-7 #loser-text-area");
-            showElement(".row-7 #restart-button");
-            audioLosing.play();
-            gameOver = true;
-        }
 
-        console.log("attack power::" + characterSelected.attackPower);
+            console.log("attack power::" + characterSelected.attackPower);
         //increase attack power of the character selected
         characterSelected.attackPointsIncrease();
 
