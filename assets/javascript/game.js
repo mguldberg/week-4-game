@@ -24,6 +24,7 @@ audioLosing.setAttribute("src", "assets/images/Price-is-right-losing-horn.mp3");
 //flags for is battle in progress or game is over -> don't register any other mouse clicks...only Restart
 var battleInProgeess = false;
 var gameOverOrPaused = false;
+var characterPicked = false;
 
 //character objects
 var reyPlayer = {
@@ -205,6 +206,7 @@ $(document).ready(function () {
 
         //set flag that battle has begun
         battleInProgeess = true;
+        characterPicked = true;
 
         // user selects the Star Wars Character they want to fight against
         // show the selection on row 6, but make the others on row 4 slide left
@@ -245,7 +247,7 @@ $(document).ready(function () {
     $(".row-5").on("click", function () {
 
         //don't allow any other clicks to register if game is over or waiting for new character selection
-        if (gameOverOrPaused == true) {
+        if (gameOverOrPaused == true || characterPicked == false) {
             return;
         }
 
